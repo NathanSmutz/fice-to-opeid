@@ -49,15 +49,20 @@
         ope-index  (csv-index range-header)]    
     (reduce #(update-in %1  [(%2 fice-index)] add-to-set (%2 ope-index))
             the-map
-            (filter #(and 
+            (filter #(and ;; TODO: Think about using remove here
                        ((complement clojure.string/blank?) (% fice-index)) 
                        ((complement clojure.string/blank?) (% ope-index))) 
                     (rest csv-vector)))))
 
 ;; TODO: Create slurp-csv-into-corelation map
-(defn slurp-csv-into-corelation map
+(defn slurp-csv-into-corelation-map
   [the-map the-file-name first-header second-header]
   (extend-corelation-map the-map (slurp-to-csv the-file-name) first-header second-header))
+
+(defn stream-csv-into-corelation-map
+  [the-map the-file-name first-header second-header]
+  (with-open [the-file-stream (clojure.java.io/reader the-file-name)]
+    (extend-corelation-map the-map (csv/read-csv the-file-stream) first-header second-header)))
 
 
 #_ (def all-fice-opeid 
