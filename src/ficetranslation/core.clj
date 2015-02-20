@@ -9,6 +9,9 @@
   []
   (println "Hello, World!"))
 
+(def csv_directory (clojure.java.io/file "./resources/csv_files"))
+
+(def csv_files (file-seq csv_directory))
 
 (defn add-to-set
   "Ads an element to a set and handles the housekeeping of creating a new set if one doesn't exist."
@@ -44,14 +47,14 @@
    Receives a map, a LazySeq of Vectors representing a CSV table and 
    two hashable values represented in the header of the CSV"
   [the-map csv-vector domain-header range-header]
-  (let [csv-index  (csv-header-index csv-vector)
-        fice-index (csv-index domain-header)
-        ope-index  (csv-index range-header)]    
-    (reduce #(update-in %1  [(%2 fice-index)] add-to-set (%2 ope-index))
+  (let [csv-index    (csv-header-index csv-vector)
+        domain-index (csv-index domain-header)
+        range-index  (csv-index range-header)]    
+    (reduce #(update-in %1  [(%2 domain-index)] add-to-set (%2 range-index))
             the-map
-            (filter #(and ;; TODO: Think about using remove here
-                       ((complement clojure.string/blank?) (% fice-index)) 
-                       ((complement clojure.string/blank?) (% ope-index))) 
+            (remove #(or  ;; We dont want anything where the domain or rang are blank
+                       (clojure.string/blank? (% domain-index)) 
+                       (clojure.string/blank? (% range-index))) 
                     (rest csv-vector)))))
 
 ;; TODO: Create slurp-csv-into-corelation map
@@ -71,12 +74,16 @@
           (map slurp-to-csv ["./resources/ic9596_a.csv" "./resources/ic9697_a.csv" "./resources/ic9798_hdr.csv"])))
 
 ;; All the FICE IDs we have, mapt to the set of OPEID's corresponding to each
-(def all-fice-opeid
+#_ (def all-fice-opeid
   (->
     {}
     (extend-corelation-map (slurp-to-csv "./resources/ic9596_a.csv")   "fice" "opeid")
     (extend-corelation-map (slurp-to-csv "./resources/ic9697_a.csv")   "fice" "opeid")
     (extend-corelation-map (slurp-to-csv "./resources/ic9798_hdr.csv") "fice" "opeid")))
+
+;; Updated version to pull all files in a directory
+(def all-fice-opeid
+  (reduce #(stream-csv-into-corelation-map %1 %2 "fice" "opeid") {} (rest csv_files)))
 
 ;; This turns out to be a one-to-many situation
 ;; Here are the ones mapping to multiple OPEIDS
@@ -87,4 +94,6 @@
 ;; And intersection on all the sets of multiple OPEIDs returns the empty set
 (apply cset/intersection (map second all-fice-opeid))
 ; #{}
+
+(count all-fice-opeid)
 

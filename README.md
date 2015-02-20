@@ -10,4 +10,5 @@ Note: Clojure is a modern Lisp running on the JVM with an emphasis on concurrenc
 
 ## Usage
 
-FIXME
+Currently this is a set of functions and example code.
+Going forward, I'll work in more documentation and exposition on keeping memory slim, etc.
