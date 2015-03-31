@@ -89,11 +89,48 @@
 ;; Here are the ones mapping to multiple OPEIDS
 (def multi-opeids (filter #(< 1 (count (second %)))all-fice-opeid))
 
-
 ;; The good news is that there is only one FICE ID for any given OPEID
 ;; And intersection on all the sets of multiple OPEIDs returns the empty set
 (apply cset/intersection (map second all-fice-opeid))
 ; #{}
 
 (count all-fice-opeid)
+;; 3689
+
+(count multi-opeids)
+;; 203
+
+;; Lets check the correlation between FICE and IPEDS IDs (unitid)
+(def all-fice-unitid
+  (reduce #(stream-csv-into-corelation-map %1 %2 "fice" "unitid") {} (rest csv_files)))
+
+(def multi-unitids (filter #(< 1 (count (second %)))all-fice-unitid))
+
+(count all-fice-unitid)
+;; 3725
+
+(apply cset/intersection (map second all-fice-unitid))
+;; #{} ; So no two FICE id's map to the same unitid
+
+(count multi-unitids)
+;; 63
+
+;; Let's check the correlation between IPEDS and OPEID
+(def all-unitid-opeid
+  (reduce #(stream-csv-into-corelation-map %1 %2 "unitid" "opeid") {} (rest csv_files)))
+
+(def multi-unitid-opeid (filter #(< 1 (count (second %)))all-unitid-opeid))
+
+(count all-unitid-opeid)
+;; 7786
+
+(count multi-unitid-opeid)
+;; 406
+
+(apply cset/intersection (map second all-unitid-opeid))
+;; #{} ; So unitid maps to a single opeid
+
+
+
+
 
