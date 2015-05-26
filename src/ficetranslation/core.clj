@@ -1,7 +1,7 @@
 (ns ficetranslation.core
   (:require [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
-            [clojure.set :as cset])
+            [clojure.java.io  :as io]
+            [clojure.set      :as cset])
   (:gen-class))
 
 
@@ -10,8 +10,7 @@
   (println "Hello, World!"))
 
 (def csv_directory (clojure.java.io/file "./resources/csv_files"))
-
-(def csv_files (file-seq csv_directory))
+(def csv_files     (file-seq csv_directory))
 
 (defn add-to-set
   "Ads an element to a set and handles the housekeeping of creating a new set if one doesn't exist."
@@ -25,7 +24,7 @@
 #_ (def the-csv (csv/read-csv the-file-content))
 
 (defn slurp-to-csv 
-  "'Slurps' a file and loads it as a LaxySeq of vectors corresponding to each row
+  "'Slurps' a file and loads it as a LazySeq of vectors corresponding to each row
    of the incoming file"
   [filename]
   (csv/read-csv (slurp filename)))
@@ -128,7 +127,9 @@
 ;; 406
 
 (apply cset/intersection (map second all-unitid-opeid))
-;; #{} ; So unitid maps to a single opeid
+;; #{} ; So no two unitid's map to the same opeid
+
+
 
 
 
